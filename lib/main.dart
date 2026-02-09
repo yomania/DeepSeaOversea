@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:io';
-import 'constants/game_constants.dart';
 import 'models/resource_model.dart';
 import 'models/unit_model.dart';
 import 'models/upgrade_model.dart';
+import 'models/skill_model.dart';
 import 'providers/economy_provider.dart';
 import 'services/purchase_service.dart';
 import 'services/background_service.dart';
@@ -22,6 +22,7 @@ void main() async {
   Hive.registerAdapter(ResourceModelAdapter());
   Hive.registerAdapter(UnitModelAdapter());
   Hive.registerAdapter(UpgradeModelAdapter());
+  Hive.registerAdapter(SkillModelAdapter());
 
   // Run Background Service (Mobile only)
   if (Platform.isAndroid || Platform.isIOS) {
