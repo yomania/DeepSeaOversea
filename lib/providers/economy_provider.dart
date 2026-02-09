@@ -332,6 +332,26 @@ class EconomyProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void manualClickWithBonus(double multiplier) {
+    final clickUnit = _units[GameConstants.unitClick];
+    double clickPower = clickUnit?.baseProduction ?? 1.0;
+
+    // Apply Skill Multipliers for Click
+    for (var skill in _skills.values) {
+      if (skill.isPurchased &&
+          skill.effects['type'] == 'unit_multiplier' &&
+          skill.effects['target'] == GameConstants.unitClick) {
+        clickPower *= skill.effects['value'];
+      }
+    }
+
+    _resources[GameConstants.resourceMinerals]?.add(clickPower * multiplier);
+    HapticFeedback.mediumImpact(); // Stronger haptic for bonus
+
+    gainXp(clickPower * multiplier);
+    notifyListeners();
+  }
+
   bool canAffordUnit(String unitId) {
     final unit = _units[unitId];
     final minerals = _resources[GameConstants.resourceMinerals]?.amount ?? 0;

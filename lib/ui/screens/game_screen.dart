@@ -6,8 +6,90 @@ import '../widgets/particle_widget.dart';
 import 'shop_screen.dart';
 import 'skill_screen.dart';
 
-class GameScreen extends StatelessWidget {
+import 'dart:async';
+import 'dart:math';
+
+class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
+
+  @override
+  State<GameScreen> createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
+  late AnimationController _bobbingController;
+  late Animation<double> _bobbingAnimation;
+
+  // Ore Event
+  bool _isOreVisible = false;
+  double _oreTop = 0;
+  double _oreLeft = 0;
+  Timer? _oreTimer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Bobbing Animation (Floating effect)
+    _bobbingController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+
+    _bobbingAnimation = Tween<double>(begin: -10.0, end: 10.0).animate(
+      CurvedAnimation(parent: _bobbingController, curve: Curves.easeInOut),
+    );
+
+    // Start Ore Event Scheduler
+    _scheduleOreEvent();
+  }
+
+  void _scheduleOreEvent() {
+    _oreTimer = Timer(Duration(seconds: Random().nextInt(10) + 10), () {
+      if (mounted) {
+        setState(() {
+          _isOreVisible = true;
+          // Random position within safe area (roughly)
+          // Adjust based on screen size, currently hardcoded for safety
+          _oreTop = Random().nextDouble() * 300 + 100; // 100 ~ 400
+          _oreLeft = Random().nextDouble() * 200 + 20; // 20 ~ 220
+        });
+
+        // Disappear after 5 seconds if not clicked
+        Future.delayed(const Duration(seconds: 5), () {
+          if (mounted && _isOreVisible) {
+            setState(() {
+              _isOreVisible = false;
+            });
+            _scheduleOreEvent();
+          }
+        });
+      }
+    });
+  }
+
+  void _onOreClicked(EconomyProvider economy) {
+    economy.manualClickWithBonus(10.0); // 10x Click Bonus
+    setState(() {
+      _isOreVisible = false;
+    });
+    _scheduleOreEvent();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Rare Ore Found! +10x Minerals!'),
+        duration: Duration(milliseconds: 800),
+        backgroundColor: Colors.amber,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _bobbingController.dispose();
+    _oreTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,10 +206,16 @@ class GameScreen extends StatelessWidget {
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              // Jellyfish Decoration (Animated or static)
-                              Positioned(
-                                top: 100,
-                                right: 50,
+                              // Jellyfish Decoration (Animated)
+                              AnimatedBuilder(
+                                animation: _bobbingAnimation,
+                                builder: (context, child) {
+                                  return Positioned(
+                                    top: 100 + _bobbingAnimation.value,
+                                    right: 50,
+                                    child: child!,
+                                  );
+                                },
                                 child: Opacity(
                                   opacity: 0.8,
                                   child: Image.asset(
@@ -136,9 +224,19 @@ class GameScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              Positioned(
-                                bottom: 150,
-                                left: 30,
+
+                              AnimatedBuilder(
+                                animation: _bobbingAnimation,
+                                builder: (context, child) {
+                                  return Positioned(
+                                    bottom:
+                                        150 +
+                                        (_bobbingAnimation.value *
+                                            -1), // Reverse move
+                                    left: 30,
+                                    child: child!,
+                                  );
+                                },
                                 child: Opacity(
                                   opacity: 0.6,
                                   child: Image.asset(
@@ -148,10 +246,33 @@ class GameScreen extends StatelessWidget {
                                 ),
                               ),
 
-                              // Main Submarine
-                              Image.asset(
-                                'assets/images/submarine.png',
-                                width: 250,
+                              // Ore Event
+                              if (_isOreVisible)
+                                Positioned(
+                                  top: _oreTop,
+                                  left: _oreLeft,
+                                  child: GestureDetector(
+                                    onTap: () => _onOreClicked(economy),
+                                    child: Image.asset(
+                                      'assets/images/ore.png',
+                                      width: 60,
+                                    ),
+                                  ),
+                                ),
+
+                              // Main Submarine (Animated)
+                              AnimatedBuilder(
+                                animation: _bobbingAnimation,
+                                builder: (context, child) {
+                                  return Transform.translate(
+                                    offset: Offset(0, _bobbingAnimation.value),
+                                    child: child,
+                                  );
+                                },
+                                child: Image.asset(
+                                  'assets/images/submarine.png',
+                                  width: 250,
+                                ),
                               ),
 
                               Positioned(
