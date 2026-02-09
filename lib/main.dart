@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'dart:io';
 import 'constants/game_constants.dart';
 import 'models/resource_model.dart';
 import 'models/unit_model.dart';
@@ -14,19 +14,21 @@ import 'ui/screens/game_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Hive
   await Hive.initFlutter();
-  
+
   // Register Adapters
   Hive.registerAdapter(ResourceModelAdapter());
   Hive.registerAdapter(UnitModelAdapter());
   Hive.registerAdapter(UpgradeModelAdapter());
-  
-  // Run Background Service
-  BackgroundService.initialize();
-  BackgroundService.registerPeriodicTask();
-  
+
+  // Run Background Service (Mobile only)
+  if (Platform.isAndroid || Platform.isIOS) {
+    BackgroundService.initialize();
+    BackgroundService.registerPeriodicTask();
+  }
+
   runApp(const DeepSeaApp());
 }
 
@@ -52,18 +54,19 @@ class _DeepSeaAppState extends State<DeepSeaApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
-       // Save timestamp when app goes background
-       _saveLastSeen();
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      // Save timestamp when app goes background
+      _saveLastSeen();
     } else if (state == AppLifecycleState.resumed) {
-       // Recalculate generic offline earnings if WorkManager didn't run
-       // (Provider will verify this)
+      // Recalculate generic offline earnings if WorkManager didn't run
+      // (Provider will verify this)
     }
   }
-  
+
   Future<void> _saveLastSeen() async {
-     final prefs = await SharedPreferences.getInstance();
-     await prefs.setString('last_seen_time', DateTime.now().toIso8601String());
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_seen_time', DateTime.now().toIso8601String());
   }
 
   @override
@@ -72,7 +75,8 @@ class _DeepSeaAppState extends State<DeepSeaApp> with WidgetsBindingObserver {
       providers: [
         ChangeNotifierProvider(create: (_) => PurchaseService()..init()),
         ChangeNotifierProxyProvider<PurchaseService, EconomyProvider>(
-          create: (context) => EconomyProvider()..init(), // Init handles basic setup
+          create: (context) =>
+              EconomyProvider()..init(), // Init handles basic setup
           update: (context, purchase, economy) {
             if (economy == null) throw ArgumentError.notNull('economy');
             economy.purchaseService = purchase;
@@ -91,7 +95,8 @@ class _DeepSeaAppState extends State<DeepSeaApp> with WidgetsBindingObserver {
             background: Color(0xFF000000),
             secondary: Color(0xFF0088AA),
           ),
-          fontFamily: 'Roboto', // Default for now, can change to custom font later
+          fontFamily:
+              'Roboto', // Default for now, can change to custom font later
         ),
         home: const GameScreen(),
       ),
