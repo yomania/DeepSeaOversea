@@ -9,6 +9,7 @@ import 'models/skill_model.dart';
 import 'providers/economy_provider.dart';
 import 'services/purchase_service.dart';
 import 'services/background_service.dart';
+import 'services/audio_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ui/screens/game_screen.dart';
 
@@ -23,6 +24,11 @@ void main() async {
   Hive.registerAdapter(UnitModelAdapter());
   Hive.registerAdapter(UpgradeModelAdapter());
   Hive.registerAdapter(SkillModelAdapter());
+
+  // Initialize Audio
+  final audioService = AudioService();
+  await audioService.init();
+  audioService.playBackgroundMusic();
 
   // Run Background Service (Mobile only)
   if (Platform.isAndroid || Platform.isIOS) {

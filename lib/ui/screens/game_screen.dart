@@ -14,179 +14,226 @@ class GameScreen extends StatelessWidget {
     final GlobalKey<ParticleWidgetState> particleKey = GlobalKey();
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Top Bar: Resources
-            Consumer<EconomyProvider>(
-              builder: (context, economy, child) {
-                final minerals = economy.getResourceAmount(
-                  GameConstants.resourceMinerals,
-                );
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surface.withOpacity(0.8),
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withOpacity(0.3),
+      backgroundColor: Colors.black, // 기본 배경색
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/background.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Top Bar: Resources
+              Consumer<EconomyProvider>(
+                builder: (context, economy, child) {
+                  final minerals = economy.getResourceAmount(
+                    GameConstants.resourceMinerals,
+                  );
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5), // 반투명 검정 배경
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.3),
+                        ),
                       ),
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'MINERALS',
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(color: Colors.grey),
-                          ),
-                          Text(
-                            minerals.toStringAsFixed(0),
-                            style: Theme.of(context).textTheme.headlineMedium
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'PER SEC',
-                            style: Theme.of(context).textTheme.labelSmall
-                                ?.copyWith(color: Colors.grey),
-                          ),
-                          Tooltip(
-                            message: economy.getProductionBreakdown(),
-                            triggerMode:
-                                TooltipTriggerMode.tap, // Tap to see on mobile
-                            showDuration: const Duration(seconds: 3),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '+${economy.mineralsPerSecond.toStringAsFixed(1)}',
-                                  style: Theme.of(context).textTheme.titleLarge
-                                      ?.copyWith(color: Colors.greenAccent),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.info_outline,
-                                  size: 14,
-                                  color: Colors.grey,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-            // Main Click Area (Depth / Visuals)
-            Expanded(
-              child: ParticleWidget(
-                key: particleKey,
-                child: Consumer<EconomyProvider>(
-                  builder: (context, economy, _) {
-                    return GestureDetector(
-                      onTapUp: (details) {
-                        economy.manualClick();
-                        particleKey.currentState?.spawnParticle(details);
-                      },
-                      child: Container(
-                        color: Colors.transparent, // Hit test
-                        width: double.infinity,
-                        height: double.infinity,
-                        child: Stack(
-                          alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Background Elements (Bubbles, fog - placeholders)
-                            Positioned(
-                              bottom: 100,
-                              child: Icon(
-                                Icons.water_drop,
-                                size: 200,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withOpacity(0.1),
-                              ),
-                            ),
-
                             Text(
-                              "TAP TO MINE",
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.2),
-                                letterSpacing: 5,
+                              'MINERALS',
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(color: Colors.grey),
+                            ),
+                            Text(
+                              minerals.toStringAsFixed(0),
+                              style: Theme.of(context).textTheme.headlineMedium
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'PER SEC',
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(color: Colors.grey),
+                            ),
+                            Tooltip(
+                              message: economy.getProductionBreakdown(),
+                              triggerMode: TooltipTriggerMode
+                                  .tap, // Tap to see on mobile
+                              showDuration: const Duration(seconds: 3),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '+${economy.mineralsPerSecond.toStringAsFixed(1)}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(color: Colors.greenAccent),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(
+                                    Icons.info_outline,
+                                    size: 14,
+                                    color: Colors.grey,
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      ],
+                    ),
+                  );
+                },
               ),
-            ),
 
-            // Bottom Menu
-            Container(
-              height: 80,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                border: Border(
-                  top: BorderSide(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.3),
+              // Main Click Area (Depth / Visuals)
+              Expanded(
+                child: ParticleWidget(
+                  key: particleKey,
+                  child: Consumer<EconomyProvider>(
+                    builder: (context, economy, _) {
+                      return GestureDetector(
+                        onTapUp: (details) {
+                          economy.manualClick();
+                          particleKey.currentState?.spawnParticle(details);
+                        },
+                        child: Container(
+                          color: Colors.transparent, // Hit test
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Jellyfish Decoration (Animated or static)
+                              Positioned(
+                                top: 100,
+                                right: 50,
+                                child: Opacity(
+                                  opacity: 0.8,
+                                  child: Image.asset(
+                                    'assets/images/jellyfish.png',
+                                    width: 80,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 150,
+                                left: 30,
+                                child: Opacity(
+                                  opacity: 0.6,
+                                  child: Image.asset(
+                                    'assets/images/jellyfish.png',
+                                    width: 60,
+                                  ),
+                                ),
+                              ),
+
+                              // Main Submarine
+                              Image.asset(
+                                'assets/images/submarine.png',
+                                width: 250,
+                              ),
+
+                              Positioned(
+                                bottom: 100,
+                                child: Text(
+                                  "TAP TO EXPLORE",
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.5),
+                                    letterSpacing: 3,
+                                    fontWeight: FontWeight.bold,
+                                    shadows: [
+                                      Shadow(
+                                        blurRadius: 10.0,
+                                        color: Colors.black,
+                                        offset: Offset(2.0, 2.0),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
+
+              // Bottom Menu
+              Container(
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  border: Border(
+                    top: BorderSide(
+                      color: Theme.of(
                         context,
-                        MaterialPageRoute(builder: (_) => const SkillScreen()),
-                      );
-                    },
-                    icon: const Icon(Icons.science, color: Colors.cyanAccent),
-                    tooltip: 'Research & Skills',
+                      ).colorScheme.primary.withOpacity(0.3),
+                    ),
                   ),
-                  FloatingActionButton(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const ShopScreen()),
-                      );
-                    },
-                    child: const Icon(Icons.shopping_cart, color: Colors.black),
-                  ),
-                  IconButton(
-                    onPressed: () => _showDebugMenu(context),
-                    icon: const Icon(Icons.bug_report, color: Colors.redAccent),
-                    tooltip: 'Test Mode',
-                  ), // Debug/Settings
-                ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SkillScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.science, color: Colors.cyanAccent),
+                      tooltip: 'Research & Skills',
+                    ),
+                    FloatingActionButton(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const ShopScreen()),
+                        );
+                      },
+                      child: const Icon(
+                        Icons.shopping_cart,
+                        color: Colors.black,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => _showDebugMenu(context),
+                      icon: const Icon(
+                        Icons.bug_report,
+                        color: Colors.redAccent,
+                      ),
+                      tooltip: 'Test Mode',
+                    ), // Debug/Settings
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
