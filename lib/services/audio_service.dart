@@ -20,9 +20,9 @@ class AudioService {
       await _bgmPlayer.setReleaseMode(ReleaseMode.loop);
 
       // Verify file existence (logical check)
-      print('AudioService: Attempting to play assets/audio/DeepSeaOversea.mp3');
+      print('AudioService: Attempting to play assets/audio/cozy.mp3');
 
-      await _bgmPlayer.play(AssetSource('audio/DeepSeaOversea.mp3'));
+      await _bgmPlayer.play(AssetSource('audio/cozy.mp3'));
       await _bgmPlayer.setVolume(0.5);
       print('AudioService: Playback started successfully');
     } catch (e) {

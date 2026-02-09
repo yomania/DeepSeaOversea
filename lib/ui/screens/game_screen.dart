@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/economy_provider.dart';
 import '../../constants/game_constants.dart';
+import '../../constants/app_config.dart';
 import '../widgets/particle_widget.dart';
 import 'shop_screen.dart';
 import 'skill_screen.dart';
@@ -342,14 +343,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         color: Colors.black,
                       ),
                     ),
-                    IconButton(
-                      onPressed: () => _showDebugMenu(context),
-                      icon: const Icon(
-                        Icons.bug_report,
-                        color: Colors.redAccent,
-                      ),
-                      tooltip: 'Test Mode',
-                    ), // Debug/Settings
+                    if (AppConfig.enableCheats)
+                      IconButton(
+                        onPressed: () => _showDebugMenu(context),
+                        icon: const Icon(
+                          Icons.bug_report,
+                          color: Colors.redAccent,
+                        ),
+                        tooltip: 'Test Mode',
+                      ), // Debug/Settings
                   ],
                 ),
               ),

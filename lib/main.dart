@@ -12,6 +12,7 @@ import 'services/background_service.dart';
 import 'services/audio_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ui/screens/game_screen.dart';
+import 'constants/app_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,6 +94,7 @@ class _DeepSeaAppState extends State<DeepSeaApp> with WidgetsBindingObserver {
       ],
       child: MaterialApp(
         title: 'Deep Sea Odyssey',
+        debugShowCheckedModeBanner: AppConfig.showDebugBanner,
         theme: ThemeData(
           useMaterial3: true,
           brightness: Brightness.dark,
